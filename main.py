@@ -1,4 +1,5 @@
 
+import os
 import pyttsx3
 import speech_recognition as sr
 import openai
@@ -26,7 +27,7 @@ def read_string(text):
     engine.runAndWait()
 
 
-def stt(recording: sr.AudioData):
+def stt(recording: sr.AudioData) -> str:
     print("STT function...")
     # receives a recording and returns text
     try:
@@ -40,7 +41,8 @@ def stt(recording: sr.AudioData):
 
     except sr.UnknownValueError:
         print("Google Speech Recognition could not understand audio")
-        read_string("I could not understand you")
+        # read_string("I could not understand you")
+        pass
 
     except sr.RequestError as e:
         print("Could not request results from Google Speech Recognition service; {0}".format(e))
@@ -51,24 +53,26 @@ def activate_assistant(mic):
     print("Activation function... ")
     # listens and waits until the user has called the AI name ('name.txt') and "activates" the assistant if so.
     with open('name.txt', 'r') as f:
-        while True:
-            print("Listening... ")
-            audio = r.listen(mic)  # starts and stops recording by default silence time
-            generated_text = stt(audio)
+        name = f.readline().strip()
 
-            try:
-                # if the user called the AI name (inside 'name.txt')
-                if f.readline().strip() in generated_text:
-                    print("Confirmed name... ")
-                    read_string("ask me anything")
-                    # return to main
-                    break
-            except TypeError:
-                pass
+    while True:
+        print("Listening... ")
+        audio = r.listen(mic)  # starts and stops recording by default silence time
+        generated_text = stt(audio)
+
+        try:
+            # if the user called the AI name (inside 'name.txt')
+            if name in generated_text:
+                print("Confirmed name... ")
+                read_string("ask me anything")
+                # return to main
+                break
+        except TypeError:
+            pass
 
 
 # connection with openAI API
-openai.api_key = "MY_API_KEY"
+openai.api_key = os.environ.get("OPENAI_KEY")
 
 # setup audio and speech recognizer instance
 r = sr.Recognizer()
@@ -78,7 +82,11 @@ with sr.Microphone() as source:
         activate_assistant(source)
 
         print("listening to user question...")
-        user_q = r.listen(source)  # listening for user question
+        while True:
+            user_q = r.listen(source)  # listening for user question
+            if user_q is not None:
+                break
+
         user_q_text = stt(user_q)
         print(f"user question > {user_q_text}")
 
