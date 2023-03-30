@@ -3,6 +3,7 @@ import os
 import pyttsx3
 import speech_recognition as sr
 import openai
+from datetime import date
 
 """
 Required installations (pip):
@@ -71,11 +72,45 @@ def activate_assistant(mic):
             pass
 
 
+def date_check():
+    current_date = str(date.today())
+
+    with open("history.txt", 'r') as hfile:
+        all_lines = hfile.readlines()
+
+    # check if the file is empty
+    if not all_lines:
+        with open("history.txt", 'a') as hfile:
+            hfile.write(f"<date>\n{current_date}\n")
+            return  # leave the function
+
+    """
+    because there is a '\n' at the end of each line of the file, every item in all_lines will have one,
+    thus, we must remove it.
+    """
+    all_lines = [line.strip() for line in all_lines]
+
+    # search for the last time the user used the program
+    all_lines.reverse()
+    last_date = ""  # the last date the program was used
+    for index, value in enumerate(all_lines):
+        if value == "<date>":
+            last_date = all_lines[index-1]  # the previous line is the date itself
+            break
+
+    if last_date != current_date:
+        with open("history.txt", 'a') as hfile:
+            hfile.write(f"<date>\n{current_date}\n")  # add the current date to the history file
+
+
 # connection with openAI API
 openai.api_key = os.environ.get("OPENAI_KEY")
 
 # setup audio and speech recognizer instance
 r = sr.Recognizer()
+
+# check for the date, add a date if needed
+date_check()
 
 with sr.Microphone() as source:
     while True:
@@ -84,10 +119,9 @@ with sr.Microphone() as source:
         print("listening to user question...")
         while True:
             user_q = r.listen(source)  # listening for user question
-            if user_q is not None:
+            user_q_text = stt(user_q)
+            if user_q_text is not None:
                 break
-
-        user_q_text = stt(user_q)
 
         # add the user question to history.txt file
         with open("history.txt", 'a') as hfile:  # option 'a' in order to write to the end of the file
