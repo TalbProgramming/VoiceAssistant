@@ -1,4 +1,5 @@
-pyttsx3
+pyttsx3~=2.90
 SpeechRecognition
 pyAudio
-openAI
+openAI~=0.27.2
+PyQt5~=5.15.9

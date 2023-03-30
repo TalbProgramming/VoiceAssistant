@@ -88,6 +88,12 @@ with sr.Microphone() as source:
                 break
 
         user_q_text = stt(user_q)
+
+        # add the user question to history.txt file
+        with open("history.txt", 'a') as hfile:  # option 'a' in order to write to the end of the file
+            hfile.write("<question>\n")
+            hfile.write(user_q_text + "\n")
+
         print(f"user question > {user_q_text}")
 
         # Sending the received text to chatGPT
@@ -99,6 +105,12 @@ with sr.Microphone() as source:
             frequency_penalty=0.0,  # recurrence of sentences
             presence_penalty=0.6,  # less repetitiveness
         )
+
+        # add the response to history.txt file
+        with open("history.txt", 'a') as hfile:  # option 'a' in order to write to the end of the file
+            hfile.write("<response>\n")
+            # the response will always start with \n\n, so we do [2:] do to remove it.
+            hfile.write(response.choices[0].text[2:] + "\n")
 
         print(response.choices[0].text)
         read_string(response.choices[0].text)

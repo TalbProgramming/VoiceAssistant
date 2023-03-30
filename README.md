@@ -15,4 +15,4 @@
 - [ ] Every day the user starts interacting with the bot, a Date(mm.dd.yy) will be added to the file. 
 - [ ] There will be a date check before writing to the file so the same date would be added twice. 
 - [ ] When the user asks a question, the line < question > will be added with a line of the STT following it on the next line. 
-- [ ] Then when chatGPT replies with an answer, the line < answer > will be added and the actual answer on the next line.
+- [ ] Then when chatGPT replies with an answer, the line < response > will be added and the actual answer on the next line.
